@@ -4,7 +4,7 @@ A barebones Node.js app using [Express 4](http://expressjs.com/).
 
 ## Running Locally
 
-Make sure you have [Node.js](http://nodejs.org/) and the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed.
+Make sure you have [Node.js](http://nodejs.org/) installed.
 
 ```sh
 git clone https://github.com/shahensargsyan/blackjack.git # or clone your own fork
