@@ -1,21 +1,24 @@
 const request = require("request");
 
-module.exports = class ArticleService {
-    static async getAllArticles() {
-        try {
-            const allArticles = await  Article.find();
-            return allArticles;
-        } catch (error) {
-            console.log(`Could not fetch articles ${error}`)
-        }
+url = "https://pickatale-backend-case.herokuapp.com/shuffle";
+
+module.exports = class GameService {
+    constructor() {
+        this.players = [];
+        this.cards = [];
+        this.winner = [];
+        this.game = {
+            'winner': '',
+            'players': []
+        };
     }
 
-    static async getCards(url) {
+    async getCards() {
         return new Promise(function (resolve, reject) {
             request(url, function (error, res, body) {
                 if (!error && res.statusCode == 200) {
-                    cards = JSON.parse(body);
-                    resolve();
+                    this.cards = JSON.parse(body);
+                    resolve(this.cards);
                 } else {
                     reject(error);
                 }
@@ -23,58 +26,58 @@ module.exports = class ArticleService {
         });
     }
 
-    static addPlayer(name) {
+    addPlayer(name) {
         let player = {
             'name' : name,
             'points' : 0,
             'cards' : [],
         }
-        players.push(player);
-        game.players.push(player)
+        this.players.push(player);
+        this.game.players.push(player)
     }
 
-    static resetGame(name) {
-        players = [];
-        game.players = [];
-        game['winner'] = '';
+    resetGame(name) {
+        this.players = [];
+        this.game['players'] = [];
+        this.game['winner'] = '';
     }
 
-    static play() {
-        players.forEach((player, index) => {
+    play() {
+        this.players.forEach((player, index) => {
             this.pullTheCard(index, 2)
         });
         let winnerPlayer;
         if(winnerPlayer = this.checkBlackjackWinner()) {
-            game['winner'] = winnerPlayer['name'];
+            this.game['winner'] = winnerPlayer['name'];
             return;
         }
         
         //if there is no winner continue drowing
-        players.forEach((player, index) => {
+        this.players.forEach((player, index) => {
             do {
                 this.pullTheCard(index);
-                if (players[index].points > 21) {
-                    players.splice(index, 1);
+                if (this.players[index].points > 21) {
+                    this.players.splice(index, 1);
                     break;
                 }
             }
-            while (players[index].points <= 17);
+            while (this.players[index].points <= 17);
 
-            if (players.length == 1) {
+            if (this.players.length == 1) {
                 return;
             }
         });  
     }
 
-    static pullTheCard(index, count = 1) {
+    pullTheCard(index, count = 1) {
         for(let i=0; i<count; i++) {
-            let card = cards.shift();
-            players[index].points+=this.getCardPoints(card.value);
-            players[index].cards.push(this.getCardName(card));
+            let card = this.cards.shift();
+            this.players[index].points+=this.getCardPoints(card.value);
+            this.players[index].cards.push(this.getCardName(card));
         }
     }
 
-    static getCardPoints(value) {
+    getCardPoints(value) {
         if (value = parseInt(value)) {
             return value;
         } else {
@@ -86,26 +89,26 @@ module.exports = class ArticleService {
         }
     }
 
-    static getCardName(card) {
+    getCardName(card) {
         return card.suit[0].toUpperCase() + card.value;
     }
 
-    static checkBlackjackWinner() {
-        winner = Object.keys(players).find(key => players.points === 21);
+    checkBlackjackWinner() {
+        this.winner = Object.keys(this.players).find(key => this.players.points === 21);
     }
 
-    static getWinner() {
-        if (game['winner'])
+    getWinner() {
+        if (this.game['winner'])
             return
 
         let winPlayer
-        if (players.length == 1) {
-            winPlayer = players.shift();
-            game.winner = winPlayer.name;
+        if (this.players.length == 1) {
+            winPlayer = this.players.shift();
+            this.game.winner = winPlayer.name;
             return;
         }
-        let winPlayerkey = Object.keys(players).
-            reduce((a, b) => players[a].points > players[b].points ? a : b);
-        game.winner = players[winPlayerkey].name;
+        let winPlayerkey = Object.keys(this.players).
+            reduce((a, b) => this.players[a].points > this.players[b].points ? a : b);
+            this.game.winner = this.players[winPlayerkey].name;
     }
 }
